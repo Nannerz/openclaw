@@ -407,6 +407,9 @@ export async function runTui(opts: TuiOptions) {
     },
     set activeChatRunId(value) {
       activeChatRunId = value;
+      if (value) {
+        liveUsageUpdatedAt = 0;
+      }
     },
     get historyLoaded() {
       return historyLoaded;
@@ -840,8 +843,8 @@ export async function runTui(opts: TuiOptions) {
       }
       if (updated) {
         liveUsageUpdatedAt = Date.now();
+        updateFooter();
       }
-      updateFooter();
     },
   });
 
