@@ -103,6 +103,19 @@ export function createEventHandlers(context: EventHandlerContext) {
     }
   };
 
+  // Schedule a follow-up refresh after the live-usage freshness guard
+  // expires so authoritative persisted data replaces live values.
+  const scheduleDelayedRefresh = () => {
+    if (Date.now() - state.liveUsageUpdatedAt < 5_000) {
+      const sessionKey = state.currentSessionKey;
+      setTimeout(() => {
+        if (state.currentSessionKey === sessionKey) {
+          void refreshSessionInfo?.();
+        }
+      }, 6_000);
+    }
+  };
+
   const finalizeRun = (params: {
     runId: string;
     wasActiveRun: boolean;
@@ -114,15 +127,8 @@ export function createEventHandlers(context: EventHandlerContext) {
       setActivityStatus(params.status);
     }
     void refreshSessionInfo?.();
-    // Schedule a follow-up refresh after the live-usage freshness guard
-    // expires so authoritative persisted data replaces live values.
-    if (params.wasActiveRun && Date.now() - state.liveUsageUpdatedAt < 5_000) {
-      const sessionKey = state.currentSessionKey;
-      setTimeout(() => {
-        if (state.currentSessionKey === sessionKey) {
-          void refreshSessionInfo?.();
-        }
-      }, 6_000);
+    if (params.wasActiveRun) {
+      scheduleDelayedRefresh();
     }
   };
 
@@ -138,15 +144,8 @@ export function createEventHandlers(context: EventHandlerContext) {
       setActivityStatus(params.status);
     }
     void refreshSessionInfo?.();
-    // Schedule a follow-up refresh after the live-usage freshness guard
-    // expires so authoritative persisted data replaces live values.
-    if (params.wasActiveRun && Date.now() - state.liveUsageUpdatedAt < 5_000) {
-      const sessionKey = state.currentSessionKey;
-      setTimeout(() => {
-        if (state.currentSessionKey === sessionKey) {
-          void refreshSessionInfo?.();
-        }
-      }, 6_000);
+    if (params.wasActiveRun) {
+      scheduleDelayedRefresh();
     }
   };
 

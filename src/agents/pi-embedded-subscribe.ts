@@ -294,7 +294,9 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
       runId: params.runId,
       stream: "usage",
       data: {
+        // Prompt tokens for this single LLM call — used as a context-window-size proxy.
         totalTokens: promptTokens,
+        // Cumulative run totals for billing/display purposes.
         inputTokens: usageTotals.input,
         outputTokens: usageTotals.output,
       },
